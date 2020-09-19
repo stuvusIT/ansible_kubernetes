@@ -1,41 +1,52 @@
 # Role Name
 
-A brief description of the role goes here.
+This role installs [Kubernetes](https://github.com/kubernetes/kubernetes) on Debian.
+That is, the packages `kubeadm`, `kubelet` and `kubectl` will be installed.
 
 
 ## Requirements
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here.
-For instance, if the role uses the EC2 module or depends on other Ansible roles, it may be a good idea to mention in this section that the boto package is required.
+[Debian](https://www.debian.org/).
+Maybe this role also works on other apt based systems.
 
 
 ## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role.
-Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
-
-Don't forget to indent the markdown table so it is readable even if not rendered.
-
-| Name       | Required/Default         | Description                                                                                        |
-|------------|:------------------------:|----------------------------------------------------------------------------------------------------|
-| `example1` | :heavy_check_mark:       | Lorem ipsum dolor sit amet, consetetur sadipscing elitr,                                           |
-| `example2` | :heavy_multiplication_x: | Sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. |
-| `example3` | `True`                   | Stet clita kasd gubergren                                                                          |
-| `example4` | `5`                      | No sea takimata sanctus est Lorem ipsum dolor sit amet.                                            |
+| Name                 | Required | Description                                         |
+| :------------------- | :------- | :-------------------------------------------------- |
+| `kubernetes_version` | yes      | See [Version Specification](#version-specification) |
 
 
-## Example
+## Version Specification
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+The variable `kubernetes_version` must contain the major and minor version of the Kubernetes version
+to install.
+The newest available patch of that version will be installed.
+Example:
 
 ```yml
+kubernetes_version: "1.19"
 ```
+
+
+## Example Playbook
+
+The following example playbook assumes that you cloned this role to `roles/kubernetes`
+(i.e. the name of the role is `kubernetes` instead of `ansible_kubernetes`).
+
+```yml
+- hosts: kube01
+  roles:
+    - role: kubernetes
+      kubernetes_version: "1.19"
+```
+
 
 ## License
 
-This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
+This work is licensed under the [MIT License](./LICENSE).
 
 
 ## Author Information
 
-- [Author Name (nickname)](github profile) _your-full-stuvus-email-address@stuvus.uni-stuttgart.de_
+- [Sebastian Hasler (haslersn)](https://github.com/haslersn) _sebastian.hasler at stuvus.uni-stuttgart.de_

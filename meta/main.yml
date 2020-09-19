@@ -1,19 +1,24 @@
 ---
 galaxy_info:
-  author: Insert author(s) here
-  description: Insert description here
+  author: haslersn
+  description: Kubernetes; see https://github.com/kubernetes/kubernetes
   company: stuvus (https://stuvus.uni-stuttgart.de)
 
-  license: CC-BY-SA
+  license: MIT
 
   min_ansible_version: 2.5
 
   platforms:
     - name: Debian
       versions:
-        - stretch
+        - buster
 
   galaxy_tags:
-    - Insert ansible galaxy tags here
+    - kubernetes
+    - container
+    - orchestration
+    - vm
+    - virtualization
+    - docker
 
 dependencies: []
