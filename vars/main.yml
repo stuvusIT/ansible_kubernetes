@@ -1,0 +1,4 @@
+---
+kubernetes_kernel_modules:
+  - overlay
+  - br_netfilter

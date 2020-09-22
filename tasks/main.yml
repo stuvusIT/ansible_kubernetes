@@ -1,2 +1,61 @@
 ---
+- name: Configure kernel modules
+  copy:
+    dest: /etc/modules-load.d/kubernetes.conf
+    content: |
+      {% for module in kubernetes_kernel_modules %}
+      {{ module }}
+      {% endfor %}
 
+- name: Load kernel modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ kubernetes_kernel_modules }}"
+
+- name: Configure sysctl
+  copy:
+    dest: /etc/sysctl.d/kubernetes.conf
+    content: |
+      net.bridge.bridge-nf-call-iptables = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.ipv4.ip_forward = 1
+      net.ipv6.conf.all.forwarding = 1
+
+- name: Load sysctl
+  command: sysctl -p /etc/sysctl.d/kubernetes.conf
+  changed_when: false
+
+- name: Add Kubernetes apt key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+- name: Add Kubernetes apt repository
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    filename: kubernetes
+  register: kubernetes_apt_repo_task
+
+- name: apt update
+  apt:
+    update_cache: yes
+  when: kubernetes_apt_repo_task.changed
+
+- name: Pin required packages
+  copy:
+    content: |
+      Package: {{ item }}
+      Pin: version {{ kubernetes_version }}.*
+      Pin-Priority: 1000
+    dest: /etc/apt/preferences.d/{{ item }}
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Install required packages
+  apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
