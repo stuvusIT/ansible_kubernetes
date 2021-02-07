@@ -1,0 +1,5 @@
+---
+kubernetes_kernel_modules:
+  - overlay
+  - br_netfilter
+kubernetes_cni_enable: false

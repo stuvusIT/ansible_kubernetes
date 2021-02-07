@@ -26,6 +26,19 @@
   command: sysctl -p /etc/sysctl.d/kubernetes.conf
   changed_when: false
 
+- name: Write CNI config
+  copy:
+    content: "{{ kubernetes_cni_config | to_nice_json(indent=2) }}"
+    dest: /etc/cni/net.d/00-ansible-kubernetes
+    mode: 0644
+  when: kubernetes_cni_enable
+
+- name: Delete CNI config
+  file:
+    path: /etc/cni/net.d/00-ansible-kubernetes
+    state: absent
+  when: not kubernetes_cni_enable
+
 - name: Add Kubernetes apt key
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
