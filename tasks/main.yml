@@ -1,4 +1,19 @@
 ---
+- name: Check that installed minor version (if any) equals {{ kubernetes_version }}
+  shell: |-
+    line="$(apt-cache policy {{ item | quote }} | grep '  Installed: ')"
+    if [ $? -ne 0 ] || [ "$line" = "  Installed: (none)" ]; then exit 0; fi # Uninstalled is ok.
+    version="$(printf "$line" | awk -F '[ .]' '{print $4"."$5}')"
+    if [ "$version" != {{ kubernetes_version | quote }} ]; then
+      >&2 echo "Error: installed "{{ item | quote }}" minor version $version does not match "{{ kubernetes_version | quote }}". This role only supports patch upgrades."
+      exit 1
+    fi
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+  changed_when: false
+
 - name: Configure kernel modules
   copy:
     dest: /etc/modules-load.d/kubernetes.conf
@@ -52,6 +67,24 @@
     - kubelet
     - kubeadm
     - kubectl
+
+- name: Check that candidate minor version equals {{ kubernetes_version }}
+  shell: |-
+    line="$(apt-cache policy {{ item | quote }} | grep '  Candidate: ')"
+    if [ $? -ne 0 ]; then
+      >&2 echo "Error: no installation candidate for "{{ item | quote }}
+      exit 2
+    fi
+    version="$(printf "$line" | awk -F '[ .]' '{print $4"."$5}')"
+    if [ "$version" != {{ kubernetes_version | quote }} ]; then
+      >&2 echo "Error: candidate "{{ item | quote }}" minor version $version does not match "{{ kubernetes_version | quote }}". Something is wrong with your pinning setup."
+      exit 1
+    fi
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+  changed_when: false
 
 - name: Install required packages
   apt:
