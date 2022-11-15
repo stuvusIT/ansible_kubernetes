@@ -1,4 +1,4 @@
-# Role Name
+# ansible_kubernetes
 
 This role installs [Kubernetes](https://github.com/kubernetes/kubernetes) on Debian.
 That is, the packages `kubeadm`, `kubelet` and `kubectl` will be installed.
