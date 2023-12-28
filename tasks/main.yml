@@ -43,12 +43,15 @@
 
 - name: Add Kubernetes apt key
   apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    url: https://pkgs.k8s.io/core:/stable:/v{{kubernetes_version}}/deb/Release.key
 
-- name: Add Kubernetes apt repository
-  apt_repository:
-    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-    filename: kubernetes
+- name: Add kubernetes apt repository
+  copy:
+    mode: 0644
+    remote_src: true
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    content: |
+      deb https://pkgs.k8s.io/core:/stable:/v{{kubernetes_version}}/deb/ /
   register: kubernetes_apt_repo_task
 
 - name: apt update
