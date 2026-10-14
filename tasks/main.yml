@@ -41,23 +41,37 @@
   command: sysctl -p /etc/sysctl.d/kubernetes.conf
   changed_when: false
 
-- name: Add Kubernetes apt key
+- name: Remove legacy kubernetes apt repository
+  file:
+    path: /etc/apt/sources.list.d/kubernetes.list
+    state: absent
+  register: kubernetes_legacy_repo_task
+
+- name: Check for apt-key
+  stat:
+    path: /usr/bin/apt-key
+  register: kubernetes_apt_key_stat
+
+- name: Remove legacy kubernetes apt key
   apt_key:
-    url: https://pkgs.k8s.io/core:/stable:/v{{kubernetes_version}}/deb/Release.key
+    id: DE15B14486CD377B9E876E1A234654DA9A296436
+    state: absent
+  when: kubernetes_apt_key_stat.stat.exists
 
 - name: Add kubernetes apt repository
-  copy:
-    mode: 0644
-    remote_src: true
-    dest: /etc/apt/sources.list.d/kubernetes.list
-    content: |
-      deb https://pkgs.k8s.io/core:/stable:/v{{kubernetes_version}}/deb/ /
+  deb822_repository:
+    name: kubernetes
+    types: deb
+    uris: https://pkgs.k8s.io/core:/stable:/v{{kubernetes_version}}/deb/
+    suites: /
+    signed_by: https://pkgs.k8s.io/core:/stable:/v{{kubernetes_version}}/deb/Release.key
+    install_python_debian: True
   register: kubernetes_apt_repo_task
 
 - name: apt update
   apt:
     update_cache: yes
-  when: kubernetes_apt_repo_task.changed
+  when: kubernetes_apt_repo_task.changed or kubernetes_legacy_repo_task.changed
 
 - name: Pin required packages
   copy:
